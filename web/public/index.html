@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/index.umd.js"></script>
+    <style>
+        body, #ele {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .panel {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            padding: 16px;
+            background-color: bisque;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<div id="ele"></div>
+<div class="panel">
+    <label for="input">输入</label><input id="input" type="text"/>
+    <button id="btn">说话</button>
+    <button id="btn2">取消</button>
+</div>
+<script>
+    const client = new dgm.Client({
+        url: 'ws://127.0.0.1:8080/ws'
+    })
+</script>
+</body>
+</html>
