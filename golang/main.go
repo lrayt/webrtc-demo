@@ -5,12 +5,10 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
-	"time"
 )
 
+// 升级 HTTP 连接为 WebSocket 连接的配置
 var upgrader = websocket.Upgrader{
-	// 这个是校验请求来源
-	// 在这里我们不做校验，直接return true
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -19,15 +17,13 @@ var upgrader = websocket.Upgrader{
 func main() {
 	r := gin.Default()
 	r.GET("/ws", func(c *gin.Context) {
-		// 将普通的http GET请求升级为websocket请求
-		client, _ := upgrader.Upgrade(c.Writer, c.Request, nil)
+		conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+		if err != nil {
+			log.Fatalf("upgrade: %s\n", err)
+		}
+		defer conn.Close()
 		for {
-			// 每隔两秒给前端推送一句消息“hello, WebSocket”
-			err := client.WriteMessage(websocket.TextMessage, []byte("hello, WebSocket"))
-			if err != nil {
-				log.Println(err)
-			}
-			time.Sleep(time.Second * 2)
+			conn.ReadJSON()
 		}
 	})
 	if err := r.Run(":8080"); err != nil {

@@ -1,7 +1,8 @@
-import type { WSConfig } from './data-types';
+import { WSConfig } from './data-types';
 export declare class Client {
     private readonly client;
+    private readonly onError;
     constructor(cfg: WSConfig);
-    on(): void;
-    send(msg: any): void;
+    private on;
+    private send;
 }

@@ -651,26 +651,41 @@
         }
     }
 
+    var Event;
+    (function (Event) {
+        Event["Open"] = "open";
+        Event["Join"] = "join";
+        Event["Joined"] = "joined";
+        Event["OtherJoin"] = "other-join";
+    })(Event || (Event = {}));
+
     var Client = /** @class */ (function () {
         function Client(cfg) {
+            var _this = this;
+            this.onError = cfg.error || console.error;
             this.client = new WebsocketBuilder(cfg.url)
                 .withBuffer(new ArrayQueue())
                 .withBackoff(new ConstantBackoff(1000))
                 .build();
-            this.client.addEventListener(WebsocketEvent.open, function () {
-                console.log('open---->');
-            });
-            this.client.addEventListener(WebsocketEvent.message, function (i, ev) {
-                console.log('message---->', ev.data);
-            });
-            this.client.addEventListener(WebsocketEvent.error, function () {
-                console.log('error---->');
-            });
-            this.client.addEventListener(WebsocketEvent.close, function () {
-                console.log('close---->');
-            });
+            this.client.addEventListener(WebsocketEvent.open, function () { return _this.on({ event: Event.Open }); });
+            // this.client.addEventListener(WebsocketEvent.message, (i: Websocket, ev: MessageEvent) => {
+            //     console.log('message---->', ev.data);
+            // })
+            // this.client.addEventListener(WebsocketEvent.error, () => cfg.error())
+            // this.client.addEventListener(WebsocketEvent.close, () => {
+            //     console.log('close---->');
+            // })
         }
-        Client.prototype.on = function () {
+        Client.prototype.on = function (msg) {
+            switch (msg.event) {
+                case Event.Open: {
+                    this.send({ event: Event.Join });
+                    break;
+                }
+                default: {
+                    this.onError("unknown event: ".concat(msg.event));
+                }
+            }
         };
         Client.prototype.send = function (msg) {
             this.client.send(JSON.stringify(msg));
