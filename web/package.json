@@ -1,45 +1,30 @@
 {
-  "name": "webrtc-demo",
-  "version": "1.4.0",
-  "main": "lib/index.cjs.js",
-  "module": "lib/index.esm.js",
-  "jsnext:main": "lib/index.esm.js",
-  "browser": "lib/index.umd.js",
-  "types": "lib/index.d.ts",
-  "private": false,
-  "files": [
-    "lib"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lrayt/webrtc-demo.git"
-  },
-  "author": {
-    "name": "Jospooa",
-    "email": "Jospooa@gtmap.com"
-  },
-  "license": "MIT",
+  "name": "webrtc-demo-web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
-  },
-  "keywords": [
-    "three.js",
-    "webgl"
-  ],
-  "description": "webrtc demo",
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "rollup": "^4.21.2",
-    "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-serve": "^1.1.1",
-    "tslib": "^2.7.0",
-    "typescript": "^5.6.2"
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "websocket-ts": "^2.1.5"
+    "axios": "^1.7.7",
+    "element-plus": "^2.8.5",
+    "vue": "^3.5.11",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^20.16.11",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "@vue/tsconfig": "^0.5.1",
+    "less": "^4.2.0",
+    "npm-run-all2": "^6.2.3",
+    "typescript": "~5.5.4",
+    "vite": "^5.4.8",
+    "vue-tsc": "^2.1.6"
   }
 }
