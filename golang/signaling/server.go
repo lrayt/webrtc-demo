@@ -2,6 +2,7 @@ package signaling
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"webrtc-demo/utils"
 )
@@ -66,17 +67,26 @@ func (h RoomHub) Del(c *gin.Context) {
 		Msg:  utils.Success,
 	})
 }
-func (h RoomHub) WS(c *gin.Context) {}
+func (h RoomHub) WS(c *gin.Context) {
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	client := NewClient(conn)
+	roomId, ok := c.GetQuery("roomId")
+	if !ok {
+		client.error("room id is empty")
+		return
+	}
 
-//func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
-//	conn, err := upgrader.Upgrade(w, r, nil)
-//	if err != nil {
-//		log.Println(err)
-//		return
-//	}
-//	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-//	client.hub.register <- client
-//
-//	go client.writePump()
-//	go client.readPump()
-//}
+	if room, exist := h.hub[roomId]; !exist {
+		client.error("room is not exist")
+		return
+	} else {
+		client.room = room
+	}
+
+	go client.writePump()
+	go client.readPump()
+}

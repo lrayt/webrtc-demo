@@ -1,27 +1,33 @@
 package signaling
 
-import "time"
+import (
+	"fmt"
+	"time"
+	"webrtc-demo/utils"
+)
 
 type Room struct {
 	id         string
 	name       string
 	CreateTime time.Time
 	clients    map[string]*Client
-	broadcast  chan []byte
+	broadcast  chan *Message
 	register   chan *Client
 	unregister chan *Client
 }
 
 func NewRoom(name string) *Room {
-	return &Room{
-		id:         Message,
+	room := &Room{
+		id:         utils.GetUUID(),
 		name:       name,
 		CreateTime: time.Now(),
 		clients:    make(map[string]*Client),
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan *Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 	}
+	go room.Run()
+	return room
 }
 
 func (r Room) Run() {
@@ -29,15 +35,19 @@ func (r Room) Run() {
 		select {
 		case client := <-r.register:
 			r.clients[client.Id] = client
-			client.joined()
 		case client := <-r.unregister:
 			if _, ok := r.clients[client.Id]; ok {
 				delete(r.clients, client.Id)
 				close(client.send)
 			}
-			// todo: leave
-			//case message := <-r.broadcast:
-
+			r.broadcast <- &Message{UID: client.Id, Action: Leave}
+		case message := <-r.broadcast:
+			for _, client := range r.clients {
+				fmt.Println("--->", message.UID, client.Id)
+				if message.UID != client.Id {
+					client.send <- message
+				}
+			}
 		}
 	}
 }

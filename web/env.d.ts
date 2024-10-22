@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
-
 interface GlobalConfig {
     serverUrl: string
+    roomUrl: string
 }
 
+
 declare interface Window {
-    _global_config: GlobalConfig
+    _globalConfig: GlobalConfig
 }

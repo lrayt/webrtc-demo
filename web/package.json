@@ -1,5 +1,5 @@
 {
-  "name": "webrtc-demo-web",
+  "name": "vue-project",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,10 +11,11 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
+    "@layui/layui-vue": "^2.18.3",
     "axios": "^1.7.7",
-    "element-plus": "^2.8.5",
-    "vue": "^3.5.11",
-    "vue-router": "^4.4.5"
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5",
+    "websocket-ts": "^2.1.5"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
@@ -25,6 +26,7 @@
     "npm-run-all2": "^6.2.3",
     "typescript": "~5.5.4",
     "vite": "^5.4.8",
+    "vite-plugin-vue-devtools": "^7.4.6",
     "vue-tsc": "^2.1.6"
   }
 }
