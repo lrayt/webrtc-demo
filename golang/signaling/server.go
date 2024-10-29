@@ -76,12 +76,12 @@ func (h RoomHub) WS(c *gin.Context) {
 	client := NewClient(conn)
 	roomId, ok := c.GetQuery("roomId")
 	if !ok {
-		client.error("room id is empty")
+		client.send <- &Message{Action: Error, Content: "room id is empty"}
 		return
 	}
 
 	if room, exist := h.hub[roomId]; !exist {
-		client.error("room is not exist")
+		client.send <- &Message{Action: Error, Content: "room is not exist"}
 		return
 	} else {
 		client.room = room

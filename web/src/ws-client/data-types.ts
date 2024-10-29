@@ -1,5 +1,6 @@
 interface Option {
     url: string,
+    log?: Function
     error?: Function
     close?: Function
 }
@@ -9,11 +10,14 @@ export enum Actions {
     Join = 'join',
     Joined = 'joined',
     OtherJoin = 'other-join',
-    Error = 'error'
+    Error = 'error',
+    Close = 'close'
 }
 
 interface Message {
-    action: Actions,
+    uid?: string
+    date?: string
+    action: Actions
     content?: string
 }
 

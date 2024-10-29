@@ -3,13 +3,12 @@ import type {Message, Option} from './data-types'
 import {Actions} from './data-types'
 
 export class WSClient {
+    private uid: string = "local"
     private readonly client: Websocket
-    private readonly onError: Function
-    private readonly onClose: Function
+    private readonly onLog: Function
 
     constructor(cfg: Option) {
-        this.onError = cfg.error || console.error
-        this.onClose = cfg.close || console.log
+        this.onLog = cfg.log || console.log
 
         this.client = new WebsocketBuilder(cfg.url)
             .withBuffer(new ArrayQueue())
@@ -17,15 +16,27 @@ export class WSClient {
             .build()
         this.client.addEventListener(WebsocketEvent.open, () => this.on({action: Actions.Open}))
         this.client.addEventListener(WebsocketEvent.message, (i: Websocket, ev: MessageEvent) => this.on(JSON.parse(ev.data)))
-        this.client.addEventListener(WebsocketEvent.error, (i, ev) => this.onError(ev))
+        this.client.addEventListener(WebsocketEvent.error, (i, ev) => this.on({
+            action: Actions.Error,
+            content: ev.type
+        }))
         this.client.addEventListener(WebsocketEvent.close, () => {
-            this.onClose('client is close')
-            this.client.close()
+            this.on({action: Actions.Close})
         })
     }
 
+    private log(message: Message): void {
+        if (!message.uid) {
+            message.uid = this.uid
+        }
+        if (!message.date) {
+            message.date = '2023-09-09T00:00:00.000Z'
+        }
+        this.onLog(message)
+    }
+
     private on(msg: Message) {
-        console.log('msg', msg);
+        this.log(msg)
         switch (msg.action) {
             case Actions.Open: {
                 this.send({action: Actions.Join})
@@ -36,11 +47,11 @@ export class WSClient {
                 break
             }
             case Actions.Error: {
-                this.onError(msg.content)
+                // this.onError(msg.content)
                 break
             }
             default: {
-                this.onError(`unknown event: ${msg.action}`)
+                // this.onError(`unknown event: ${msg.action}`)
             }
         }
     }

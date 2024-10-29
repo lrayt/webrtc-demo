@@ -29,9 +29,8 @@ import {RouterView} from 'vue-router'
   overflow-y: auto;
 
   .container {
-    width: 1680px;
-    margin: auto;
-    padding: 32px 16px;
+    width: 100%;
+    height: 100%;
   }
 }
 
