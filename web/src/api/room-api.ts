@@ -1,4 +1,5 @@
 import type {AxiosInstance} from 'axios'
+import type {UserInfo} from '@/common/user'
 
 export default class RoomAPI {
     private readonly client: AxiosInstance
@@ -17,5 +18,9 @@ export default class RoomAPI {
 
     async del(param: any): Promise<any> {
         return this.client.post('/room/del', param)
+    }
+
+    async users(roomId: any): Promise<UserInfo[]> {
+        return this.client.get(`/room/users?room_id=${roomId}`)
     }
 }

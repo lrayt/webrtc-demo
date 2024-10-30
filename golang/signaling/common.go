@@ -39,6 +39,12 @@ type RoomInfo struct {
 	CreatedAt string `json:"created_at"`
 }
 
+type UserInfo struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"created_at"`
+}
+
 type Actions string
 
 const (

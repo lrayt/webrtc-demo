@@ -32,6 +32,7 @@ func main() {
 		rg.GET("all", hub.All)
 		rg.POST("add", hub.Add)
 		rg.POST("del", hub.Del)
+		rg.GET("users", hub.Users)
 	}
 	r.GET("/ws", hub.WS)
 	if err := r.Run(":8080"); err != nil {

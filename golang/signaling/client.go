@@ -14,45 +14,58 @@ type Client struct {
 }
 
 func NewClient(conn *websocket.Conn) *Client {
-	return &Client{
+	client := &Client{
 		Id:   utils.GetUUID(),
 		conn: conn,
 		send: make(chan *Message, 8),
 	}
+	go client.writePump()
+	go client.readPump()
+	return client
 }
 
-//func (c Client) error(msg string) {
-//	if err := c.conn.WriteJSON(&Message{Action: Error, Content: msg}); err != nil {
-//		log.Printf("write message err:%s\n", err.Error())
-//	}
-//	if err := c.conn.Close(); err != nil {
-//		log.Printf("conn close err:%s", err.Error())
-//	}
-//}
-//
-//func (c Client) joined() {
-//	//c.send <- []byte(fmt.Sprintf(`{"type": "%s","content":"%s"}`, Joined, c.Id))
-//	if err := c.conn.WriteJSON(&Message{Action: Joined, Content: c.Id}); err != nil {
-//		c.error(err.Error())
-//	}
-//}
-
 func (c *Client) readPump() {
+	defer func() {
+		if c.room != nil {
+			c.room.unregister <- c
+		}
+	}()
 	for {
 		msg := new(Message)
-		if err := c.conn.ReadJSON(msg); err != nil {
+		err := c.conn.ReadJSON(msg)
+		if websocket.IsCloseError(err, websocket.CloseGoingAway) {
+			log.Println("client disconnected")
+			break
+		} else if err != nil {
 			log.Printf("read message err:%s", err.Error())
+			break
 		}
 	}
 }
 
 func (c *Client) writePump() {
+	defer func() {
+		c.conn.Close()
+	}()
+
 	for {
 		select {
-		case msg := <-c.send:
+		case msg, ok := <-c.send:
+			if !ok {
+				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
 			if err := c.conn.WriteJSON(msg); err != nil {
 				log.Printf("write message err:%s", err.Error())
 			}
 		}
+	}
+}
+
+func (c Client) userInfo() *UserInfo {
+	return &UserInfo{
+		Id:        c.Id,
+		Name:      "Mary",
+		CreatedAt: "2024-09-20",
 	}
 }

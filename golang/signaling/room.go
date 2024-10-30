@@ -22,7 +22,7 @@ func NewRoom(name string) *Room {
 		name:       name,
 		CreateTime: time.Now(),
 		clients:    make(map[string]*Client),
-		broadcast:  make(chan *Message),
+		broadcast:  make(chan *Message, 8),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 	}
@@ -33,15 +33,25 @@ func NewRoom(name string) *Room {
 func (r Room) Run() {
 	for {
 		select {
-		case client := <-r.register:
+		case client, ok := <-r.register:
+			if !ok {
+				continue
+			}
 			r.clients[client.Id] = client
+			client.send <- &Message{UID: client.Id, Action: Joined}
+			if len(r.clients) > 1 {
+				r.broadcast <- &Message{UID: client.Id, Action: OtherJoin}
+			}
 		case client := <-r.unregister:
 			if _, ok := r.clients[client.Id]; ok {
 				delete(r.clients, client.Id)
 				close(client.send)
 			}
 			r.broadcast <- &Message{UID: client.Id, Action: Leave}
-		case message := <-r.broadcast:
+		case message, ok := <-r.broadcast:
+			if !ok {
+				continue
+			}
 			for _, client := range r.clients {
 				fmt.Println("--->", message.UID, client.Id)
 				if message.UID != client.Id {

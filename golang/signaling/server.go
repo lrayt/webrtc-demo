@@ -67,10 +67,38 @@ func (h RoomHub) Del(c *gin.Context) {
 		Msg:  utils.Success,
 	})
 }
+
+func (h RoomHub) Users(c *gin.Context) {
+	roomId, ok := c.GetQuery("room_id")
+	if !ok || len(roomId) <= 0 {
+		c.JSON(http.StatusOK, &utils.BaseResponse{
+			Code: utils.ParamInvalid,
+			Msg:  "room id is empty",
+		})
+		return
+	}
+
+	if room, ok := h.hub[roomId]; !ok {
+		c.JSON(http.StatusOK, &utils.BaseResponse{
+			Code: utils.BusinessError,
+			Msg:  "room id is not exist",
+		})
+	} else {
+		users := make([]*UserInfo, 0, len(room.clients))
+		for _, client := range room.clients {
+			users = append(users, client.userInfo())
+		}
+		c.JSON(http.StatusOK, &utils.BaseResponse{
+			Code: utils.OK,
+			Msg:  utils.Success,
+			Data: users,
+		})
+	}
+}
 func (h RoomHub) WS(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("target", err)
 		return
 	}
 	client := NewClient(conn)
@@ -86,7 +114,5 @@ func (h RoomHub) WS(c *gin.Context) {
 	} else {
 		client.room = room
 	}
-
-	go client.writePump()
-	go client.readPump()
+	client.room.register <- client
 }

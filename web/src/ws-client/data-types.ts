@@ -1,8 +1,8 @@
 interface Option {
     url: string,
-    log?: Function
-    error?: Function
-    close?: Function
+    onLog?: Function
+    onMessage?: Function
+    onUserJoin?: Function
 }
 
 export enum Actions {
@@ -10,9 +10,11 @@ export enum Actions {
     Join = 'join',
     Joined = 'joined',
     OtherJoin = 'other-join',
+    Message = 'message',
     Error = 'error',
-    Close = 'close'
+    Leave = 'leave'
 }
+
 
 interface Message {
     uid?: string
